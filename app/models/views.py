@@ -15,7 +15,7 @@ from model import Model, TypeModel
 def index(request: HttpRequest):
     if request.method == "POST":
         # Get the datetime string and convert to datetime object
-        dat_time_str = request.POST.get("event_datetime")
+        date_time_str = request.POST.get("event_datetime")
         car_count = request.POST.get("car_count")
         bike_count = request.POST.get("bike_count")
         bus_count = request.POST.get("bus_count")
@@ -24,17 +24,19 @@ def index(request: HttpRequest):
         model_type = request.POST.get("model_type")
 
         # Create prediction data
-        x_pred = DataPerdict.create_data(car_count, bike_count, bus_count, trunk_count, dat_time_str)
-        model_ = Model(None)
+        data_perdict_model = DataPerdict()
+        data_perdict = data_perdict_model.create_data(car_count, bike_count, bus_count, trunk_count, date_time_str)
+        model_ = Model()
+        model: Model
         # Initialize model and make predictions
         if model_type == "KNN":
-            model_ = model_.get_instance(TypeModel.KNN)
+            model = model_.get_instance(TypeModel.KNN)
         elif model_type == "Random forest":
-            model_ = model_.get_instance(TypeModel.RandomForest)
+            model = model_.get_instance(TypeModel.RandomForest)
         else:
             return JsonResponse({'Error': 'Model type not supported'}, status=400)
 
-        y_pred = model_.perdict(x_pred)
+        y_pred = model.perdict(data_perdict)
 
         return JsonResponse({'label': f'{y_pred}'})
 

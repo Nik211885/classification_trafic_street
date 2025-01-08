@@ -9,7 +9,7 @@ class TypeModel(Enum):
 
 class Model:
     _model: dict = {}
-    def __init__(self, model: GridSearchCV):
+    def __init__(self, model: GridSearchCV = None):
         self.model = model
     @staticmethod
     def __load_model(type: TypeModel):
@@ -19,7 +19,6 @@ class Model:
         return Model(model)
     
     def perdict(self,data: DataPerdict):
-    
     # Perform prediction
         y_pred = self.model.predict(data.convert_to_feature())
 
