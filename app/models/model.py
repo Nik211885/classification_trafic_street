@@ -8,17 +8,25 @@ class TypeModel(Enum):
     RandomForest = "random_forest_model.pkl"
 
 class Model:
+    _model: dict = {}
     def __init__(self, model: GridSearchCV):
         self.model = model
     @staticmethod
-    def load_model(type: TypeModel):
-        dir_save_models = Path(__file__).resolve().parent.parent + "\\model_store"
-        model = joblib.load(f"{dir_save_models}\\{type}")           
+    def __load_model(type: TypeModel):
+        dir_save_models = f"{Path(__file__).resolve().parent.parent}\model_store"
+        path_mode = f"{dir_save_models}\{str(type.value).replace("('","").replace("',)","")}"
+        model = joblib.load(path_mode)           
         return Model(model)
+    
     def perdict(self,data: DataPerdict):
-        label = {0: 'heavy', 1: 'high', 2: 'low', 3: 'normal'}
-        y_pred =  self.model.predict(data)
-        label = label.get(int(y_pred), None)
-        if(label is None):
-            raise Exception("Has new label")
-        return label
+    
+    # Perform prediction
+        y_pred = self.model.predict(data.convert_to_feature())
+
+        return y_pred[0]
+    
+    def get_instance(self, type: TypeModel):
+    # Singleton check - load model only if not loaded
+        if(self._model.get(type, None) is None):
+            self._model[type] = self.__load_model(type)
+        return self._model.get(type)
